@@ -10,34 +10,33 @@ use Doctrine\Persistence\ObjectManager;
 class ProgramFixtures extends Fixture implements DependentFixtureInterface
 {
     const PROGRAM = [
-        ['title' => 'Walking dead', 'synopsis' => 'Des zombies envahissent la terre', 'category_name' => 'category_Action'],
-        ['title' => 'Succession', 'synopsis' => 'Une famille se détruisent pour de l`argent', 'category_name' => 'category_Action'],
-        ['title' => 'The Last Of Us', 'synopsis' => 'Des zombies énervé envahissent la terre', 'category_name' => 'category_Aventure'],
-        ['title' => 'Severance', 'synopsis' => 'Une entreprise pas comme les autres', 'category_name' => 'category_Action'],
-        ['title' => 'Game of Thrones', 'synopsis' => 'Une partie d`échec avec des dragons', 'category_name' => 'category_Fantastique'],
-    ] ;
+        ['title' => 'Walking Dead', 'synopsis' => 'Des zombies envahissent la terre', 'category_name' => 'category_Action','country' => 'US', 'year' => '2010', 'program_name' => 'Walking Dead'],
+        ['title' => 'Succession', 'synopsis' => 'Une famille se détruisent pour de l`argent', 'category_name' => 'category_Action','country' => 'US', 'year' => '2010', 'program_name' => 'Succession'],
+        ['title' => 'The Last Of Us', 'synopsis' => 'Des zombies énervé envahissent la terre', 'category_name' => 'category_Aventure','country' => 'US', 'year' => '2010', 'program_name' => 'The Last Of Us'],
+        ['title' => 'Severance', 'synopsis' => 'Une entreprise pas comme les autres', 'category_name' => 'category_Action', 'country' => 'US', 'year' => '2010', 'program_name' => 'Severance'],
+        ['title' => 'Game of Thrones', 'synopsis' => 'Une partie d`échec avec des dragons', 'category_name' => 'category_Fantastique', 'country' => 'US', 'year' => '2010', 'program_name' => 'Game of Thrones'],
+    ];
 
-    public function load(ObjectManager $manager): void
+    public function load(ObjectManager $manager)
     {
-        foreach (self::PROGRAM as $key =>$programSeries) {  
+        foreach (self::PROGRAM as $key => $programSeries) {
             $program = new Program();
             $program->setTitle($programSeries['title']);
             $program->setSynopsis($programSeries['synopsis']);
             $program->setCategory($this->getReference($programSeries['category_name']));
-
+            $program->setCountry($programSeries['country']);
+            $program->setYear($programSeries['year']);
+            $this->addReference($programSeries['program_name'], $program);
             $manager->persist($program);
         }
-
         $manager->flush();
     }
 
     public function getDependencies()
     {
-        // Tu retournes ici toutes les classes de fixtures dont ProgramFixtures dépend
         return [
           CategoryFixtures::class,
         ];
     }
-
-
 }
+
