@@ -1,18 +1,42 @@
 {% extends 'base.html.twig' %}
 
-{% block title %}{{ program.title }}{% endblock %}
+{% block title %}
+	{{ program.title }}
+{% endblock %}
 
 {% block body %}
 
-    <h1>{{ program.title }}</h1>
-    <h2>Saison {{ season.number }}</h2>
+	<h1>{{ program.title }}</h1>
+	<h2>Saison
+		{{ season.number }}</h2>
 
-    <h3>Episode {{ episode.number }}:</h3>
-   
-        <p>épisode : {{ episode.title }} / {{ episode.synopsis}}</p>
+	<h3>Episode
+		{{ episode.number }}:</h3>
 
-    <a href="{{ path('app_index') }}">
-        Retour à l'accueil
-    </a>
+	<p>épisode :
+		{{ episode.title }}
+		/
+		{{ episode.synopsis}}</p>
+
+	{{ include ('program/_form.html.twig')}}
+
+    {% if comments is not empty %}
+	<ul>
+		{% for comment in comments %}
+			<li>
+				{{ comment.comment}}
+			</li>
+			<li>
+				{{ comment.rate}}
+			</li>
+		{% endfor %}
+	</ul>
+    {% else %}
+    <p> aucun commentaire</p>
+    {% endif %}
+    
+	<a href="{{ path('app_index') }}">
+		Retour à l'accueil
+	</a>
 
 {% endblock %}

@@ -3,14 +3,18 @@
 namespace App\Controller;
 
 use App\Entity\Season;
+use App\Entity\Comment;
 use App\Entity\Episode;
 use App\Entity\Program;
+use App\Form\CommentType;
 use App\Form\ProgramType;
+use App\Repository\CommentRepository;
 use App\Repository\ProgramRepository;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
+use Symfony\Bundle\SecurityBundle\Security;
 
 class ProgramController extends AbstractController
 {
@@ -33,8 +37,8 @@ class ProgramController extends AbstractController
         $form->handleRequest($request);
 
         if ($form->isSubmitted()) {
-            $programRepository->save($program, true);     
-            
+            $programRepository->save($program, true);
+
             return $this->redirectToRoute('program_index');
         }
 
@@ -67,12 +71,28 @@ class ProgramController extends AbstractController
     }
 
     #[Route('/program/{program}/seasons/{season}/episode{episode}', name: 'program_episode_show')]
-    public function showEpisode(Program $program, Season $season, Episode $episode): Response
+    public function showEpisode(Program $program, Season $season, Episode $episode, CommentRepository $commentRepository, Request $request, Security $security): Response
     {
+        $comment = new Comment();
+        $comments = $commentRepository->findBy(['episode' => $episode], ['id' => 'ASC']);
+        $form = $this->createForm(CommentType::class, $comment);
+        $form->handleRequest($request);
+
+        if ($form->isSubmitted()) {
+            $comment->setEpisode($episode);
+            $author = $security->getUser();
+            $comment->setAuthor($author);
+            $commentRepository->save($comment, true);
+
+            return $this->redirectToRoute('program_index', ['id' => $episode->getId()], Response::HTTP_SEE_OTHER);
+        }
+
         return $this->render('program/episode_show.html.twig', [
             'program' => $program,
             'season' => $season,
             'episode' => $episode,
+            'form' => $form,
+            'comments' => $comments,
         ]);
     }
 }
